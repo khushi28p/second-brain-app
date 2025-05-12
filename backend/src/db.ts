@@ -1,9 +1,5 @@
 import mongoose, {model, Schema} from 'mongoose';
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const mongoUrl = process.env.MONGODB_URI;
+import { mongoUrl } from './config';
 
 mongoose.connect(`${mongoUrl}`)
 

@@ -2,11 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import { UserModel } from "./db";
-import dotenv from "dotenv";
-
-dotenv.config();
-
-const port = process.env.PORT;
+import { port, jwtSecret } from "./config";
 
 const app = express();
 app.use(express.json());
@@ -40,7 +36,7 @@ app.post("/api/v1/signin", async (req, res) => {
         {
           id: existingUser._id,
         },
-        process.env.JWT_SECRET!
+        jwtSecret!
       );
 
       res.json({ token });
@@ -52,7 +48,9 @@ app.post("/api/v1/signin", async (req, res) => {
   }
 });
 
-app.post("/api/v1/content", async (req, res) => {});
+app.post("/api/v1/content", async (req, res) => {
+    
+});
 
 app.get("/api/v1/content", async (req, res) => {});
 

@@ -11,6 +11,8 @@ const port = process.env.PORT;
 const app = express();
 app.use(express.json())
 
+const jwtSecret = process.env.JWT_SECRET;
+
 app.post("/api/v1/signup", async(req, res) => {
     const {username, password} = req.body;
 
@@ -27,6 +29,13 @@ app.post("/api/v1/signup", async(req, res) => {
 })
 
 app.post("/api/v1/signin", async(req, res) => {
+    const {username,  password} = req.body;
+
+    const existingUser = await UserModel.findOne({
+        username,
+        password
+    })
+
     
 })
 

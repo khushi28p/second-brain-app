@@ -12,6 +12,6 @@ export const userMiddleware = (req: Request, res: Response, next:NextFunction) =
         next();
     }
     else{
-        res.status(403).json({message: "Invalid token"});
+        res.status(403).json({message: "you are not logged in"});
     }
 }

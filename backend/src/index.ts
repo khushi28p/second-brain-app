@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import { UserModel } from "./db";
 import { port, jwtSecret } from "./config";
+import { userMiddleware } from "./middleware";
+import { ContentModel } from "./db";
 
 const app = express();
 app.use(express.json());
@@ -48,8 +50,20 @@ app.post("/api/v1/signin", async (req, res) => {
   }
 });
 
-app.post("/api/v1/content", async (req, res) => {
+app.post("/api/v1/content", userMiddleware, async (req, res) => {
+    const { title, link, tags } = req.body;
+
+    await ContentModel.create({
+        title,
+        link,
+        //@ts-ignore
+        userId: req.userId,
+        tags:[]
+    })
     
+    res.json({
+        message:"Content added"
+    })
 });
 
 app.get("/api/v1/content", async (req, res) => {});

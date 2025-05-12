@@ -66,7 +66,18 @@ app.post("/api/v1/content", userMiddleware, async (req, res) => {
     })
 });
 
-app.get("/api/v1/content", async (req, res) => {});
+app.get("/api/v1/content", userMiddleware, async (req, res) => {
+    //@ts-ignore
+    const userId = req.userId;
+
+    const contents = await ContentModel.find({
+        userId
+    }).populate("userId", "username")
+
+    res.json({
+        contents
+    })
+});
 
 app.delete("/api/v1/content", async (req, res) => {});
 

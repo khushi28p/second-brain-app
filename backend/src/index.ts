@@ -1,10 +1,18 @@
+declare global {
+  namespace Express{
+    export interface Request {
+      userId?: string;
+    }
+  }
+}
+
 import express from "express";
-import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
-import { UserModel } from "./db";
+import { LinkModel, UserModel } from "./db";
 import { port, jwtSecret } from "./config";
 import { userMiddleware } from "./middleware";
 import { ContentModel } from "./db";
+import { random } from "./utils";
 
 const app = express();
 app.use(express.json());
@@ -56,7 +64,6 @@ app.post("/api/v1/content", userMiddleware, async (req, res) => {
     await ContentModel.create({
         title,
         link,
-        //@ts-ignore
         userId: req.userId,
         tags:[]
     })
@@ -84,7 +91,6 @@ app.delete("/api/v1/content", async (req, res) => {
 
     await ContentModel.findByIdAndDelete({
         contentId,
-        //@ts-ignore
         userId: req.userId
     })
 
@@ -93,9 +99,67 @@ app.delete("/api/v1/content", async (req, res) => {
     })
 });
 
-app.post("/api/v1/brain/share", async (req, res) => {});
+app.post("/api/v1/brain/share", userMiddleware, async (req, res) => {
+  const share = req.body.share;
 
-app.get("/api/v1/brain/:shareLink", async (req, res) => {});
+  if(share){
+    const existingLink = await LinkModel.findOne({
+      userId: req.userId
+    })
+
+    if(existingLink){
+      res.json({
+        hash: existingLink.hash
+      })
+      return;
+    }
+    const hash = random(10);
+    await LinkModel.create({
+      userId: req.userId,
+      hash: hash
+    })
+
+    res.json({
+      message: "/share/" + hash
+    })
+  } else{
+    await LinkModel.deleteOne({
+      userId: req.userId
+    })
+
+    res.json({
+      message: "Link deleted"
+    })
+  }
+});
+
+app.get("/api/v1/brain/:shareLink", async (req, res) => {
+  const hash = req.params.shareLink;
+
+  const link = await LinkModel.findOne({
+    hash
+  });
+
+  if(!link){
+    res.status(411).json({
+      message: "Link not found"
+    })
+    return;
+  }
+
+  const content = await ContentModel.find({
+    userId: link.userId
+  })
+
+  const user = await UserModel.findOne({
+    _id: link.userId
+  })
+
+  res.json({
+    username: user?.username,
+    content: content
+  })
+});
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

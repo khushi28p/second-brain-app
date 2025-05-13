@@ -1,5 +1,5 @@
 import {NextFunction, Request, Response} from 'express';
-import jwt from 'jsonwebtoken';
+import jwt, { Jwt, JwtPayload } from 'jsonwebtoken';
 import { jwtSecret } from './config';
 
 export const userMiddleware = (req: Request, res: Response, next:NextFunction) => {

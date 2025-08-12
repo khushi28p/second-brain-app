@@ -1,5 +1,5 @@
 declare global {
-  namespace Express{
+  namespace Express {
     export interface Request {
       userId?: string;
     }
@@ -59,77 +59,77 @@ app.post("/api/v1/signin", async (req, res) => {
 });
 
 app.post("/api/v1/content", userMiddleware, async (req, res) => {
-    const { title, link, tags } = req.body;
+  const { title, link, tags } = req.body;
 
-    await ContentModel.create({
-        title,
-        link,
-        userId: req.userId,
-        tags:[]
-    })
-    
-    res.json({
-        message:"Content added"
-    })
+  await ContentModel.create({
+    title,
+    link,
+    userId: req.userId,
+    tags: [],
+  });
+
+  res.json({
+    message: "Content added",
+  });
 });
 
 app.get("/api/v1/content", userMiddleware, async (req, res) => {
-    //@ts-ignore
-    const userId = req.userId;
+  //@ts-ignore
+  const userId = req.userId;
 
-    const contents = await ContentModel.find({
-        userId
-    }).populate("userId", "username")
+  const contents = await ContentModel.find({
+    userId,
+  }).populate("userId", "username");
 
-    res.json({
-        contents
-    })
+  res.json({
+    contents,
+  });
 });
 
-app.delete("/api/v1/content", async (req, res) => {
-    const contentId = req.body.contentId;
+app.delete("/api/v1/content", userMiddleware, async (req, res) => {
+  const contentId = req.body.contentId;
 
-    await ContentModel.findByIdAndDelete({
-        contentId,
-        userId: req.userId
-    })
+  await ContentModel.deleteMany({
+    contentId,
+    userId: req.userId,
+  });
 
-    res.json({
-        message: "Content deleted"
-    })
+  res.json({
+    message: "Content deleted",
+  });
 });
 
 app.post("/api/v1/brain/share", userMiddleware, async (req, res) => {
   const share = req.body.share;
 
-  if(share){
+  if (share) {
     const existingLink = await LinkModel.findOne({
-      userId: req.userId
-    })
+      userId: req.userId,
+    });
 
-    if(existingLink){
+    if (existingLink) {
       res.json({
-        hash: existingLink.hash
-      })
+        hash: existingLink.hash,
+      });
       return;
     }
     const hash = random(10);
     await LinkModel.create({
       userId: req.userId,
-      hash: hash
-    })
+      hash: hash,
+    });
 
     res.json({
-      message: "/share/" + hash
-    })
-  } else{
+      message: "/share/" + hash,
+    });
+  } else {
     await LinkModel.deleteOne({
-      userId: req.userId
-    })
+      userId: req.userId,
+    });
 
     res.json({
-      message: "Link deleted"
-    })
+      message: "Link deleted",
+    });
   }
 });
 
@@ -137,28 +137,28 @@ app.get("/api/v1/brain/:shareLink", async (req, res) => {
   const hash = req.params.shareLink;
 
   const link = await LinkModel.findOne({
-    hash
+    hash,
   });
 
-  if(!link){
+  if (!link) {
     res.status(411).json({
-      message: "Link not found"
-    })
+      message: "Link not found",
+    });
     return;
   }
 
   const content = await ContentModel.find({
-    userId: link.userId
-  })
+    userId: link.userId,
+  });
 
   const user = await UserModel.findOne({
-    _id: link.userId
-  })
+    _id: link.userId,
+  });
 
   res.json({
     username: user?.username,
-    content: content
-  })
+    content: content,
+  });
 });
 
 app.listen(port, () => {

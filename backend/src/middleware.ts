@@ -4,7 +4,7 @@ import { jwtSecret } from './config';
 
 export const userMiddleware = (req: Request, res: Response, next:NextFunction) => {
     const header = req.headers["authorization"];
-    const decoded = jwt.verify(header!, jwtSecret!);
+    const decoded = jwt.verify(header as string, jwtSecret!);
 
     if(decoded){
         //@ts-ignore

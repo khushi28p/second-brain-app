@@ -5,17 +5,19 @@ interface ButtonProps {
     text: string;
     startIcon: ReactElement;
     onClick?: () => void;
+    fullWidth?: boolean;
+    loading?: boolean;
 }
 
 const variantClasses = {
-    primary: "bg-red-500 text-white",
-    secondary: "bg-red-300 text-red-900",
+    primary: "bg-blue-700 text-white ",
+    secondary: "bg-blue-100 text-blue-700",
 }
 
 const defaultStyles = "px-4 py-2 rounded-md font-light flex justify-center items-center "
 
-export function Button({variant, text, startIcon, onClick}: ButtonProps){
-    return <button onClick={onClick} className={variantClasses[variant] + " " + defaultStyles}>
+export function Button({variant, text, startIcon, onClick, fullWidth, loading}: ButtonProps){
+    return <button onClick={onClick} className={variantClasses[variant] + " " + defaultStyles + `${fullWidth ? " w-full flex justify-center items-center" : ""}` } disabled={loading}>
         <div className="pr-2">{startIcon}</div>
         {text}
     </button>

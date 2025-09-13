@@ -13,9 +13,11 @@ import { port, jwtSecret } from "./config";
 import { userMiddleware } from "./middleware";
 import { ContentModel } from "./db";
 import { random } from "./utils";
+import cors from "cors";
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 app.post("/api/v1/signup", async (req, res) => {
   const { username, password } = req.body;
@@ -59,11 +61,14 @@ app.post("/api/v1/signin", async (req, res) => {
 });
 
 app.post("/api/v1/content", userMiddleware, async (req, res) => {
-  const { title, link, tags } = req.body;
+  const type = req.body.type;
+  const link = req.body.link;
+  const title = req.body.title;
 
   await ContentModel.create({
     title,
     link,
+    type,
     userId: req.userId,
     tags: [],
   });
